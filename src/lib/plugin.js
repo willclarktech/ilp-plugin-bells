@@ -166,6 +166,8 @@ class FiveBellsLedger extends EventEmitter2 {
     const ledgerMetadata = yield this._fetchLedgerMetadata(host)
     this.ledgerContext = new LedgerContext(host, ledgerMetadata)
 
+    this._setupHttpAgent(this.ledgerContext)
+
     // Set ILP prefix
     const ledgerPrefix = this.ledgerContext.prefix
     if (this.configPrefix) {
@@ -187,6 +189,26 @@ class FiveBellsLedger extends EventEmitter2 {
       timeout: options.timeout,
       uri: notificationsUrl
     })
+  }
+
+  _setupHttpAgent (ledgerContext) {
+    const hostURL = parseURL(ledgerContext.host)
+    const matches = /^five-bells@(\d+)$/.exec(ledgerContext.ledgerMetadata.version)
+    // use HTTP2 only with fb-ledger over HTTPS
+    if (hostURL.protocol === 'https:' && matches && matches[1] >= 20) {
+      const http2 = require('http2')
+      try {
+        this.agent = new http2.Agent().once('error', function (err) {
+          debug('HTTP2 Handler Error: ', err)
+          this.emit(err)
+        })
+      } catch (e) {
+        debug(e)
+      }
+      debug('Using HTTP/2.0')
+    } else {
+      debug('Using HTTP/1.1')
+    }
   }
 
   _connectToWebsocket (options) {
