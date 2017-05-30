@@ -162,12 +162,7 @@ class PluginFactory extends EventEmitter2 {
       .replace('/:name', '/' + username)
 
     // make sure that the account exists
-    const exists = yield request(account, {
-      auth: {
-        username: this.adminUsername,
-        password: this.adminPassword
-      }
-    })
+    const exists = yield request(this.adminPlugin.appendAuthToken(account))
 
     if (exists.statusCode !== 200) {
       const msg = 'account ' + account + ' cannot be reached: ' + exists.statusCode + ' ' + JSON.stringify(exists.body)

@@ -1,6 +1,7 @@
 'use strict'
 
 const parseURL = require('url').parse
+const urlJoin = require('url-join')
 const co = require('co')
 const request = require('co-request')
 const WebSocket = require('ws')
@@ -112,6 +113,7 @@ class FiveBellsLedger extends EventEmitter2 {
       })
     }
     this.connecting = true
+    this.authToken = undefined
 
     if (this.identifier) {
       const newOptions = yield resolveWebfingerOptions(this.identifier)
@@ -180,9 +182,9 @@ class FiveBellsLedger extends EventEmitter2 {
     }
     this.ready = true
 
-    const authToken = yield this._getAuthToken()
-    if (!authToken) throw new Error('Unable to get auth token from ledger')
-    const notificationsUrl = this.ledgerContext.urls.websocket + '?token=' + encodeURIComponent(authToken)
+    this.authToken = yield this._getAuthToken()
+    if (!this.authToken) throw new Error('Unable to get auth token from ledger')
+    const notificationsUrl = this.appendAuthToken(this.ledgerContext.urls.websocket)
     yield this._connectToWebsocket({
       timeout: options.timeout,
       uri: notificationsUrl
@@ -375,7 +377,7 @@ class FiveBellsLedger extends EventEmitter2 {
     try {
       res = yield request(Object.assign({
         method: 'get',
-        uri: creds.account,
+        uri: this.appendAuthToken(creds.account),
         json: true
       }, requestCredentials(creds)))
     } catch (e) { }
@@ -435,7 +437,7 @@ class FiveBellsLedger extends EventEmitter2 {
     const sendRes = yield request(Object.assign(
       requestCredentials(this.credentials), {
         method: 'post',
-        uri: this.ledgerContext.urls.message,
+        uri: this.appendAuthToken(this.ledgerContext.urls.message),
         body: fiveBellsMessage,
         json: true
       }))
@@ -503,7 +505,7 @@ class FiveBellsLedger extends EventEmitter2 {
     const sendRes = yield request(Object.assign(
       requestCredentials(this.credentials), {
         method: 'put',
-        uri: fiveBellsTransfer.id,
+        uri: this.appendAuthToken(fiveBellsTransfer.id),
         body: fiveBellsTransfer,
         json: true
       }))
@@ -531,7 +533,7 @@ class FiveBellsLedger extends EventEmitter2 {
     const fulfillmentRes = yield request(Object.assign(
       requestCredentials(this.credentials), {
         method: 'put',
-        uri: this.ledgerContext.urls.transfer_fulfillment.replace(':id', transferId),
+        uri: this.appendAuthToken(this.ledgerContext.urls.transfer_fulfillment.replace(':id', transferId)),
         body: translate.translateToCryptoFulfillment(conditionFulfillment),
         headers: {
           'content-type': 'text/plain'
@@ -579,7 +581,7 @@ class FiveBellsLedger extends EventEmitter2 {
     try {
       res = yield request(Object.assign({
         method: 'get',
-        uri: fulfillmentUri,
+        uri: this.appendAuthToken(fulfillmentUri),
         json: true,
         headers: {
           'Accept': '*/*'
@@ -617,7 +619,7 @@ class FiveBellsLedger extends EventEmitter2 {
     const rejectionRes = yield request(Object.assign(
       requestCredentials(this.credentials), {
         method: 'put',
-        uri: this.ledgerContext.urls.transfer_rejection.replace(':id', transferId),
+        uri: this.appendAuthToken(this.ledgerContext.urls.transfer_rejection.replace(':id', transferId)),
         body: rejectionMessage,
         json: true
       }))
@@ -703,6 +705,12 @@ class FiveBellsLedger extends EventEmitter2 {
       }))
     const body = getResponseJSON(authTokenRes)
     return body && body.token
+  }
+
+  appendAuthToken (url) {
+    return (this.authToken)
+      ? urlJoin(url, '?token=' + encodeURIComponent(this.authToken))
+      : url
   }
 
   _requestRetry (requestOptions, retryOptions) {
