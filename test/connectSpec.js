@@ -793,7 +793,7 @@ describe('Connection methods', function () {
           setTimeout(() => {
             assert.equal(this.plugin.isConnected(), true)
             resolve()
-          }, 20)
+          }, 30)
         })
       })
 

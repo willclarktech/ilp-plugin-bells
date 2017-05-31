@@ -124,6 +124,7 @@ describe('PluginBellsFactory', function () {
       it('will not create a nonexistant account', function * () {
         const nockBob = nock('http://red.example')
           .get('/accounts/bob')
+          .query({token: 'abc'})
           .reply(404, {})
 
         try {
@@ -138,10 +139,7 @@ describe('PluginBellsFactory', function () {
       it('will create a plugin', function * () {
         nock('http://red.example')
           .get('/accounts/mike')
-          .basicAuth({
-            user: 'admin',
-            pass: 'admin'
-          })
+          .query({token: 'abc'})
           .reply(200, {
             ledger: 'http://red.example',
             name: 'admin'
@@ -155,10 +153,7 @@ describe('PluginBellsFactory', function () {
       it('will not create more than one plugin per account', function * () {
         nock('http://red.example')
           .get('/accounts/mike')
-          .basicAuth({
-            user: 'admin',
-            pass: 'admin'
-          })
+          .query({token: 'abc'})
           .reply(200, {
             ledger: 'http://red.example',
             name: 'admin'
@@ -172,10 +167,7 @@ describe('PluginBellsFactory', function () {
       it('will create a plugin with account', function * () {
         nock('http://red.example')
           .get('/accounts/mike')
-          .basicAuth({
-            user: 'admin',
-            pass: 'admin'
-          })
+          .query({token: 'abc'})
           .reply(200, {
             ledger: 'http://red.example',
             name: 'admin'
@@ -191,6 +183,7 @@ describe('PluginBellsFactory', function () {
         const username = 'mike_12-34'
         nock('http://red.example')
           .get('/accounts/' + username)
+          .query({token: 'abc'})
           .reply(200)
 
         const plugin = yield this.factory.create({ account: 'http://red.example/accounts/' + username })
@@ -212,10 +205,7 @@ describe('PluginBellsFactory', function () {
       it('subscribes to the new account', function * () {
         nock('http://red.example')
           .get('/accounts/mary')
-          .basicAuth({
-            user: 'admin',
-            pass: 'admin'
-          })
+          .query({token: 'abc'})
           .reply(200, {
             ledger: 'http://red.example',
             name: 'admin'
@@ -240,10 +230,7 @@ describe('PluginBellsFactory', function () {
       it('resolves when it has gotten the subscription response', function * () {
         nock('http://red.example')
           .get('/accounts/mary')
-          .basicAuth({
-            user: 'admin',
-            pass: 'admin'
-          })
+          .query({token: 'abc'})
           .reply(200, {
             ledger: 'http://red.example',
             name: 'mary'
@@ -294,6 +281,7 @@ describe('PluginBellsFactory', function () {
           .get('/auth_token')
           .reply(200, {token: 'abc'})
           .get('/accounts/bob')
+          .query({token: 'abc'})
           .reply(200, {
             ledger: 'http://red.example:3000',
             name: 'bob'
@@ -316,10 +304,7 @@ describe('PluginBellsFactory', function () {
       beforeEach(function * () {
         nock('http://red.example')
           .get('/accounts/mike')
-          .basicAuth({
-            user: 'admin',
-            pass: 'admin'
-          })
+          .query({token: 'abc'})
           .reply(200, {
             ledger: 'http://red.example',
             name: 'admin'
@@ -443,19 +428,13 @@ describe('PluginBellsFactory', function () {
 
         nock('http://red.example')
           .get('/accounts/mary')
-          .basicAuth({
-            user: 'admin',
-            pass: 'admin'
-          })
+          .query({token: 'abc'})
           .reply(200, {
             ledger: 'http://red.example',
             name: 'mary'
           })
           .get('/accounts/bob')
-          .basicAuth({
-            user: 'admin',
-            pass: 'admin'
-          })
+          .query({token: 'abc'})
           .reply(200, {
             ledger: 'http://red.example',
             name: 'bob'
@@ -478,10 +457,7 @@ describe('PluginBellsFactory', function () {
       beforeEach(function * () {
         nock('http://red.example')
           .get('/accounts/mike')
-          .basicAuth({
-            user: 'admin',
-            pass: 'admin'
-          })
+          .query({token: 'abc'})
           .reply(200, {
             ledger: 'http://red.example',
             name: 'admin'
@@ -632,6 +608,7 @@ describe('PluginBellsFactory', function () {
       beforeEach(function * () {
         nock('http://red.example')
           .get('/accounts/mike')
+          .query({token: 'abc'})
           .reply(200, {
             ledger: 'http://red.example',
             name: 'admin'

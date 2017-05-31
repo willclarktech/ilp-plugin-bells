@@ -68,7 +68,7 @@ describe('Messaging', function () {
     it('submits a message', function * () {
       nock('http://red.example')
         .post('/messages', this.ledgerMessage)
-        .basicAuth({user: 'mike', pass: 'mike'})
+        .query({token: 'abc'})
         .reply(200)
       yield assert.isFulfilled(this.plugin.sendMessage(this.message), null)
     })
@@ -76,7 +76,7 @@ describe('Messaging', function () {
     it('submits a message with "to" instead of "account"', function * () {
       nock('http://red.example')
         .post('/messages', this.ledgerMessage)
-        .basicAuth({user: 'mike', pass: 'mike'})
+        .query({token: 'abc'})
         .reply(200)
 
       this.message.to = this.message.account
@@ -105,6 +105,7 @@ describe('Messaging', function () {
         }))
       const messageNock = nock('http://red.example')
         .post('/other/place/to/submit/messages')
+        .query({token: 'abc'})
         .reply(200)
       const plugin = new PluginBells({
         prefix: 'example.red.',
@@ -164,7 +165,7 @@ describe('Messaging', function () {
     it('throws an InvalidFieldsError on InvalidBodyError', function (done) {
       nock('http://red.example')
         .post('/messages')
-        .basicAuth({user: 'mike', pass: 'mike'})
+        .query({token: 'abc'})
         .reply(400, {id: 'InvalidBodyError', message: 'fail'})
 
       this.plugin.sendMessage(this.message)
@@ -174,7 +175,7 @@ describe('Messaging', function () {
     it('throws a NoSubscriptionsError', function (done) {
       nock('http://red.example')
         .post('/messages', this.ledgerMessage)
-        .basicAuth({user: 'mike', pass: 'mike'})
+        .query({token: 'abc'})
         .reply(422, {id: 'NoSubscriptionsError', message: 'fail'})
 
       this.plugin.sendMessage(this.message)
@@ -184,7 +185,7 @@ describe('Messaging', function () {
     it('throws an NotAcceptedError on 400', function (done) {
       nock('http://red.example')
         .post('/messages', this.ledgerMessage)
-        .basicAuth({user: 'mike', pass: 'mike'})
+        .query({token: 'abc'})
         .reply(400, {id: 'SomeError', message: 'fail'})
 
       this.plugin.sendMessage(this.message)

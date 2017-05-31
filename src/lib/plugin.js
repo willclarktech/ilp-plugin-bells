@@ -708,7 +708,7 @@ class FiveBellsLedger extends EventEmitter2 {
   }
 
   appendAuthToken (url) {
-    return (this.authToken)
+    return this.authToken
       ? urlJoin(url, '?token=' + encodeURIComponent(this.authToken))
       : url
   }

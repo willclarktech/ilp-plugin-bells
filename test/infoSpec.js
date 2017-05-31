@@ -203,7 +203,7 @@ describe('Info methods', function () {
     it('returns the current balance', function * () {
       nock('http://red.example')
         .get('/accounts/mike')
-        .basicAuth({user: 'mike', pass: 'mike'})
+        .query({token: 'abc'})
         .reply(200, {balance: '100.01'})
       yield assert.isFulfilled(this.plugin.getBalance(), '10001')
     })
@@ -211,7 +211,7 @@ describe('Info methods', function () {
     it('throws an ExternalError on 500', function () {
       nock('http://red.example')
         .get('/accounts/mike')
-        .basicAuth({user: 'mike', pass: 'mike'})
+        .query({token: 'abc'})
         .reply(500)
       return assert.isRejected(this.plugin.getBalance(), /Unable to determine current balance/)
     })
